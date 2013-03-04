@@ -1,3 +1,4 @@
+# Copyright 2013 Nicholas Esterer. All Rights Reserved.
 # Testin' vhtrees
 from vhtrees import *
 from formgenerator import *

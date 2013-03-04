@@ -1,3 +1,4 @@
+# Copyright 2013 Nicholas Esterer. All Rights Reserved.
 import random
 from formgenerator import *
 from finddotproducts import *

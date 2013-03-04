@@ -1,3 +1,4 @@
+# Copyright 2013 Nicholas Esterer. All Rights Reserved.
 '''Vertical and horizontal tree elements'''
 
 from rhythmgenerator import *

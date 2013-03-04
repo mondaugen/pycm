@@ -1,3 +1,4 @@
+# Copyright 2013 Nicholas Esterer. All Rights Reserved.
 import fractions
 def cm_gcd(args):
     '''You should copy the list you put into args if you don't want to lose it
