@@ -1,0 +1,188 @@
+64 9 4
+36
+0 0 5
+0 1 1
+0 2 1
+0 3 25
+0 4 4
+0 5 1
+0 6 5
+0 7 2
+0 8 5
+1 0 3
+1 1 1
+1 2 2
+1 3 5
+1 4 1
+1 5 3
+1 6 5
+1 7 1
+1 8 25
+2 0 1
+2 1 1
+2 2 3
+2 3 15
+2 4 1
+2 5 4
+2 6 15
+2 7 2
+2 8 5
+3 0 2
+3 1 1
+3 2 4
+3 3 15
+3 4 2
+3 5 1
+3 6 5
+3 7 4
+3 8 15
+0 0 1 2
+0 2 1 1
+0 1 2 2
+0 3 4 2
+1 0 1 1
+1 2 1 0
+2 0 1 1
+2 1 2 2
+2 2 3 2
+3 0 5 0
+4 1 1 1
+4 3 2 0
+5 2 3 2
+5 1 3 0
+6 3 1 1
+7 3 1 1
+8 2 5 8
+8 1 5 3
+8 3 5 6
+8 0 25 3
+13 2 15 3
+13 3 15 3
+13 1 25 8
+28 2 5 8
+28 3 15 8
+33 0 5 6
+33 2 15 6
+38 0 5 8
+38 1 5 3
+43 0 5 8
+43 1 5 6
+43 3 5 6
+48 0 1 2
+48 2 1 1
+48 1 2 2
+48 3 4 2
+49 0 1 1
+49 2 1 0
+50 0 1 1
+50 1 2 2
+50 2 3 2
+51 0 5 0
+52 1 1 1
+52 3 2 0
+53 2 3 2
+53 1 3 0
+54 3 1 1
+55 3 1 1
+56 2 1 4
+56 3 1 5
+56 1 3 5
+56 0 4 4
+57 2 1 4
+57 3 1 5
+58 2 4 5
+58 3 4 7
+59 1 1 7
+60 0 1 5
+60 1 3 5
+61 0 1 5
+62 0 2 7
+62 2 2 7
+62 3 2 4
+63 1 1 4
+'''
+    Expects that the first line of the file is:
+    length, number of formal elements per track, number of tracks
+    then a line saying how long the follow list is
+    after that is a list of (we call it the element list):
+    track number, element number, length
+    after this is the sequence of the piece, each entry of which consists of:
+    time, track, length, element number
+
+    For every element in the element list, generate a sequence of notes that is
+    equal to the length of the element
+
+    Then play the piece by going through the sequence, looking up the
+    sub-sequence corresponding to the track and element numbers and writing the
+    contained events, offset by the current index, to a list, each entry
+    containing:
+    time, track, pitch, dynamic, notelength
+
+    Args are pitch offset
+'''
+import sys
+import string
+import random
+import wander
+
+if len(sys.argv) < 2:
+    poffset = 60
+else:
+    poffset = int(sys.argv[1])
+
+pitches = [0,2,4,5,7,9,11,12,14,16,17,19,21,23,24]
+lowdynrange = [20,60]
+hidynnrange = [40,90]
+
+length, numelems, numtracks = sys.stdin.readline().split()
+length = int(length)
+numelems = int(numelems)
+numtracks = int(numtracks)
+
+elemlistlen = int(sys.stdin.readline())
+
+# For storing the lengths by [track][element]
+trelems = [[[] for x in xrange(numelems)] for y in xrange(numtracks)]
+# For storing the sequences by [track][element]
+trelseqs = [[[] for x in xrange(numelems)] for y in xrange(numtracks)]
+
+for i in xrange(elemlistlen):
+    tnum, enum, elen = sys.stdin.readline().split()
+    tnum = int(tnum)
+    enum = int(enum)
+    elen = int(elen)
+    sys.stderr.write(str((tnum,enum,elen))
+    trelems[tnum][enum] = elen
+
+for i in xrange(numtracks):
+    for j in xrange(numelems):
+	seqlen = trelems[i][j]
+	ptr = 0
+	notelens = []
+	while seqlen > 0:
+	    notelen = random.randrange(seqlen) + 1
+	    notelens.append((ptr,notelen))
+	    ptr = ptr + notelen
+	    seqlen = seqlen - notelen
+	lo = random.randrange(*lowdynrange)
+	hi = random.randrange(*hidynnrange)
+	a = wander.wander(lo, hi, 0, abs(hi-lo)+1, 0, 120, len(notelens))
+	ita = iter(a)
+	# could wander the pitches too
+	for t, l in notelens:
+	    pitch = random.choice(pitches)
+	    trelseqs[i][j].append((t, pitch, ita.next(), l))
+
+for t, tr, l, el in sys.stdin.readlines():
+    t = int(t)
+    tr = int(tr)
+    l = int(l)
+    el = int(el)
+    for st, pitch, dy, le in trelseqs[tr][el]:
+	print st+t, pitch, dy, le
+
+
+
+
+
+
