@@ -10,7 +10,8 @@ def cm_gcd(args):
 #    if len(args) > 1:
 #	a = args.pop()
 #	return fractions.gcd(a,cm_gcd(args))
-    return args.pop()
+    result = args.pop()
+    return result
 
 def cm_factorize(a, primes):
     '''Factor a number into primes. Primes must have available all the primes up
@@ -67,3 +68,25 @@ def cm_lcm(a,b):
 
 #def cm_new_denom(nums, frac):
 #    '''If frac is 1/q then for each n in nums n = 
+
+def linear_interpolation(index, table):
+    '''Linear interpolate between values in a table'''
+    idxflr = math.floor(index)
+    idxfract = index - idxflr
+    print idxfract
+    return table[int(idxflr)%len(table)]+ \
+	(idxfract*(table[(int(idxflr)+1)%len(table)]-table[int(idxflr)%len(table)]))
+
+def find_nearest(ary, val):
+    '''
+    Find the closest value in ary to val.
+    '''
+    nearest = ary[0]
+    smallestdistance = abs(ary[0]-val)
+    for i in xrange(1, len(ary)):
+	distance = abs(ary[i]-val)
+	if distance < smallestdistance:
+	    smallestdistance = distance
+	    nearest = ary[i]
+    return nearest
+
