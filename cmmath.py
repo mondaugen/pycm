@@ -90,3 +90,22 @@ def find_nearest(ary, val):
 	    nearest = ary[i]
     return nearest
 
+def cm_round(n, d, offset=0):
+    '''
+    Round n to nearest d. Offset is used as follows:
+    Say you have the numbers -0.6, 0.4, 3.7.
+    If d is 1 and offset 0, these become -1.0, 0, 4.0.
+    If d is 1 and offset 0.5, these become -0.5, 0.5, 3.5.
+    If the value is halfway between two round points, the algorithm rounds up to
+    the absolute highest value, that is, if offset is 0, d is 1, then -0.5
+    rounds to -1.0 and 0.5 rounds to 1.0 
+    '''
+    n = n - offset
+    q = n % d
+    if q < (d / 2):
+	n = n - q
+    else:
+	n = n - q + d
+    return n + offset
+
+
