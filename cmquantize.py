@@ -20,7 +20,7 @@ class Quantizer:
 	like to go back to the original, unquantized rhythm, pass 0 for divisor.
 	Passing 0 for divisor will ignore whatever is in offset.
 	'''
-	if self.seqref = None:
+	if self.seqref == None:
 	    raise Exception('self.seqref is None')
 	tmpdict = dict()
 	for origk, oldk in zip(self.originalkeys, sorted(self.seqref.keys())):
@@ -30,6 +30,6 @@ class Quantizer:
 		self.seqref[k] = tmpdict[k]
 	else:
 	    for k in tmpdict.keys():
-		self.seqref[cmround(k,divisor,offset)] = tmpdict[k]
+		self.seqref[cmmath.cm_round(k,divisor,offset)] = tmpdict[k]
 	
 

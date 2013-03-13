@@ -1,4 +1,79 @@
 import cminterputils
+import cmmath
+
+def get_two_closest_keys(seqdict, key):
+    it = iter(sorted(seqdict.keys()))
+    prevkey = None
+    nextkey = None
+    while True:
+	try:
+	    nextkey = it.next()
+	except StopIteration:
+	    return (prevkey, None)
+	if nextkey > key:
+	    return (prevkey, nextkey)
+	prevkey = nextkey
+
+def get_quantized_key(seqdict, key, divisor=0, offset=0):
+    lkey, rkey = get_two_closest_keys(seqdict, key)
+    closestkey = None
+    if lkey != None:
+	if divisor != 0:
+	    lkey = cmmath.cm_round(lkey,divisor,offset)
+    if rkey != None:
+	if divisor != 0:
+	    rkey = cmmath.cm_round(rkey,divisor,offset)
+    # prefer the lesser key
+    if lkey != None:
+	if lkey == key:
+	    return lkey
+    if rkey != None:
+	if rkey == key:
+	    return rkey
+    return None
+    
+def quantized_get(seqdict, key, divisor=0, offset=0):
+    newkey = None
+    newkey = get_quantized_key(seqdict, key, divisor, offset)
+    if newkey != None:
+	return seqdict[newkey]
+    return None
+
+def get_item_at_key(seqdict, key):
+    '''
+    Return the item at key only if it is in seqdict, None, otherwise.
+    '''
+    if key in seqdict.keys():
+	return seqdict[key]
+    else:
+	return None
+
+def get_item_and_length_at_key(seqdict, key, totallength=1):
+    '''
+    Return the item and the distance between it and the next item as a tuple, or the
+    distance between it and the totallength if it is the last item. Raises
+    ValueError if the key is greater than totallength. Returns None if key not
+    in seqdict.
+    '''
+    if key > totallength:
+	raise ValueError
+    if key not in seqdict:
+	return None
+    it = iter(sorted(seqdict.keys()))
+    firstkey = None
+    while True:
+	try:
+	    firstkey = it.next()
+	except StopIteration:
+	    return None # Key not found, shouldn't really happen
+	if firstkey == key:
+	    break
+    secondkey = None
+    try:
+	secondkey = it.next() # we want next key
+    except StopIteration:
+	secondkey = totallength # or totallength if this is the last key
+    return (seqdict[firstkey], secondkey - firstkey)
 
 def get_next_lowest_item(seqdict, key):
     '''

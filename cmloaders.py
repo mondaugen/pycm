@@ -1,16 +1,35 @@
 from fractions import *
 
-def correct_keys_for_length(seqdict, length):
+def correct_keys_for_length(seqdict, length, newlength=Fraction(1)):
     '''
     Basically, if the keys represent some kind of index in a sequence, then this
-    makes all indices between 0 and 1.
+    makes all indices between 0 and newlength.
     '''
     tmpdict = dict()
     for k in sorted(seqdict):
-	    tmpdict[Fraction(Fraction(k),length)] = seqdict[k]
+	    tmpdict[Fraction(Fraction(k)*newlength,length)] = seqdict[k]
     return tmpdict
 
-def load_length_intlist_pairs(f):
+def load_length_string_pairs(f,totallength=Fraction(1)):
+    '''
+    Loads string lists from a file stored in the format:
+    <length>, string
+    .
+    .
+    into a dictionary of time:string pairs ie:
+    {123/1000:'my new band is syskill', etc.}
+    '''
+    ptr = Fraction(0)
+    tmpdict = dict()
+    for line in f:
+	length, string = tuple(line.rstrip().split(','))
+	length = Fraction(length.strip())
+	tmpdict[ptr] = string.strip()
+	ptr = ptr + length
+
+    return correct_keys_for_length(tmpdict, ptr, totallength)
+
+def load_length_intlist_pairs(f,totallength=Fraction(1)):
     '''
     Loads int lists from a file stored
     in the format:
@@ -32,10 +51,10 @@ def load_length_intlist_pairs(f):
 	ptr = ptr + length
 
     # Now we divide all the keys by length to normalize the sequence length
-    # to 1
-    return correct_keys_for_length(tmpdict, ptr)
+    # to totallength 
+    return correct_keys_for_length(tmpdict, ptr, totallength)
 
-def load_length_pcs_pairs(f):
+def load_length_pcs_pairs(f,totallength=Fraction(1)):
     '''
     Loads pitch-class-sets (often used to represent chords) from a file stored
     in the format:
@@ -43,9 +62,9 @@ def load_length_pcs_pairs(f):
     into a dictionary of time:(pcs) pairs ie:
     {123/1000:([0 4 7]), etc. }
     '''
-    return load_length_intlist_pairs(f)
+    return load_length_intlist_pairs(f,totallength)
 
-def load_length_float_pairs(f):
+def load_length_float_pairs(f, totallength=Fraction(1)):
     '''
     Loads floating point numbers (often used to represent contours) from a file
     stored in the format:
@@ -64,5 +83,5 @@ def load_length_float_pairs(f):
 	tmpdict[ptr] = fpn
 	ptr = ptr + length
 
-    return correct_keys_for_length(tmpdict, ptr)
+    return correct_keys_for_length(tmpdict, ptr, totallength)
 

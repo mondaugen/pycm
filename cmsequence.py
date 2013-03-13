@@ -7,6 +7,7 @@ import cmloaders
 import cmseqdict
 import cmpitchtools
 import cminterputils
+import cmquantize
 
 class IndexableSequence:
     __metaclass__ = abc.ABCMeta
@@ -139,10 +140,63 @@ class ContourSequence(IndexableSequence):
 	self.contour = self.loading_function(f)
 
     def adjust_indices(self, i):
-	self.chords = cmseqdict.index_multiplier(self.chords, i)
+	self.contour = cmseqdict.index_multiplier(self.contour, i)
 
     def __len__(self):
 	return sum(self.contour)
+
+class RhythmSequence(IndexableSequence):
+    '''
+    A sequence that stores a sequence of some combination of "note" and "rest".
+    This is to have a way to store rhythmic sequences that can be polled to see
+    if a note should be sounding or not at a given time. It will also be
+    possible to just iterate the elements of the sequence, which can then be
+    used to lookup values in other sequences to make complete descriptions of
+    notes (with pitch, dynamics etc).
+    It is also possible to quantize the notes in the sequence as it sublasses
+    Quantizer.
+    The total length is the desired resulting length if you were to add all the
+    fractional rhythmic values up.
+    '''
+
+    def __init__(self, loading_function=cmloaders.load_length_string_pairs,\
+	    f=None, totallength=Fraction(1), divisor=0, offset=0):
+	self.totallength=totallength
+	self.rhythm = dict()
+	self.loading_function = loading_function
+	self.divisor = divisor
+	self.offset = offset
+	if f == None:
+	    return
+	self.load_from_file(f)
+
+    def __getitem__(self, key):
+	'''
+	Returns the tuple ('note',length) if key is in self.rhythm, otherwise
+	returns ('rest',0). Length is calculated by subtracting the next note
+	time from the current one (key)
+	'''
+	key = cmgetters.get_quantized_key(self.rhythm, key, self.divisor,\
+		self.offset)
+	if key == None:
+	    return ('rest', 0)
+	tup = cmgetters.get_item_and_length_at_key(self.rhythm, key,\
+	    self.totallength)
+	if tup == None:
+	    return ('rest', 0)
+	status, length = tup
+	return (status, length)
+
+    def load_from_file(self, f):
+	self.rhythm = self.loading_function(f)
+
+    def adjust_indices(self, i):
+	self.rhythm = cmseqdict.index_multiplier(self.rhythm, i)
+
+    def __len__(self):
+	return sum(self.contour)
+
+
 
 class ContourNoteCombSeq(CombiningSequence):
     '''
