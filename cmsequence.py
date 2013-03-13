@@ -197,7 +197,6 @@ class RhythmSequence(IndexableSequence):
 	return sum(self.contour)
 
 
-
 class ContourNoteCombSeq(CombiningSequence):
     '''
     Holds a chord sequence, a range sequence and a contour sequence and gives
@@ -262,4 +261,76 @@ class ContourNoteCombSeq(CombiningSequence):
 	self.chordsequence.adjust_indices(i)
 	self.rangesequence.adjust_indices(i)
 	self.contoursequence.adjust_indices(i)
+
+class ContourRhythmNoteCombSeq(CombiningSequence):
+    '''
+    Holds a chord sequence, a range sequence, a contour sequence and a rhythm and gives
+    notes by combining lookups from all four.
+    '''
+    def __init__(self, rhythmsequence, chordsequence, rangesequence, contoursequence):
+	self.rhythmsequence = rhythmsequence
+	self.chordsequence = chordsequence
+	self.rangesequence = rangesequence
+	self.contoursequence = contoursequence
+
+    def combine(self, args):
+	'''
+	args is a dictionary of the pairs:
+	'chord':<list>
+	'contour':<float>
+	'range':<list>
+	and they are combined to give a midinote number (given that range is
+	describing midinotes
+	'''
+	note, length = args['note']
+	if note == 'rest':
+	    return args['note']
+	chord = args['chord']
+	lowerbound = args['range'][0]
+	upperbound = args['range'][1]
+	contour = args['contour']
+	return (cmpitchtools.get_nearest_pitch(\
+		cmpitchtools.map_pcs_to_range(chord, lowerbound, upperbound),\
+		cminterputils.linterp_norm(\
+		    float(lowerbound),float(upperbound),contour)),length)
+
+    def __len__(self):
+	'''
+	Without loss of generality we should be able to return the length of any
+	sequence.
+	'''
+	return sum(self.chordsequence)
+
+    def __getitem__(self, key):
+	'''
+	Look up items in all the sub sequences and bring them together yeah.
+	TODO: A better way to do this might be to pass combdict to some method
+	in the IndexableSequences like:
+	combdict = self.somesequence.fill_dict_entry(combdict, key)
+	Then it's only upto combine to have to know what the keys are and how to
+	put them together. Further more, we can then have an arbitrary number of
+	sequences and it is only up to combine to know how to put them together:
+	for s in self.sequences:
+	    combdict = s.fill_dict_entry(combdict, key)
+	return self.combine(combdict)
+	'''
+	combdict = dict()
+	combdict['note']  = self.rhythmsequence[key]
+	combdict['chord'] = self.chordsequence[key]
+	combdict['contour'] = self.contoursequence[key]
+	combdict['range'] = self.rangesequence[key]
+	return self.combine(combdict)
+
+    def load_from_file(self, f):
+	'''
+	I don't know how we're going to load the three from a single file yet.
+	'''
+	raise NotImplementedError
+
+    def adjust_indices(self, i):
+	self.rhythmsequence.adjust_indices(i)
+	self.chordsequence.adjust_indices(i)
+	self.rangesequence.adjust_indices(i)
+	self.contoursequence.adjust_indices(i)
+
 
