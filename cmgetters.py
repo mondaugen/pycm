@@ -1,5 +1,7 @@
 import cminterputils
 import cmmath
+import cmbisect
+
 
 def get_two_closest_keys(seqdict, key):
     it = iter(sorted(seqdict.keys()))
@@ -60,36 +62,43 @@ def get_item_and_length_at_key(seqdict, key, totallength=1):
 	raise ValueError
     if key not in seqdict:
 	return None
-    sortedkeys = seqdict.keys()
+    sortedkeys = sorted(seqdict.keys())
     secondindex = sortedkeys.index(key) + 1
-    if secondindex == len(sortedkeys)
+    if secondindex == len(sortedkeys):
 	secondkey = totallength
-    else
+    else:
 	secondkey = sortedkeys[secondindex]
-    return (seqdict[firstkey], secondkey - firstkey)
+    return (seqdict[key], secondkey - key)
 
 def get_next_lowest_item(seqdict, key):
     '''
     Sequence is a dictionary stored as {<time>:<value>,...} pairs.
     Go through the sequence and look for an item with key
     equal to or less than key. Return the item at key.
-    THIS IS REALLY SLOW
+    Faster, not tested.
     '''
-    it = iter(sorted(seqdict))
+    sortedkeys = sorted(seqdict.keys())
+    lekey = None
     try:
-	prv = it.next()
-    except StopIteration:
+	lekey = cmbisect.find_le(sortedkeys, key)
+    except ValueError:
 	return None
+    return seqdict[lekey]
 
-    while True:
-	try:
-	    nxt = it.next()
-	except StopIteration:
-	    return seqdict[prv]
-	if nxt <= key:
-	    prv = nxt
-	else:
-	    return seqdict[prv]
+def get_next_greatest_item(seqdict, key):
+    '''
+    Sequence is a dictionary stored as {<time>:<value>,...} pairs.
+    Go through the sequence and look for an item with key
+    greater than key. Return the item at key.
+    Faster, not tested.
+    '''
+    sortedkeys = sorted(seqdict.keys())
+    gtkey = None
+    try:
+	gtkey = cmbisect.find_gt(sortedkeys, key)
+    except ValueError:
+	return None
+    return seqdict[gtkey]
 
 def get_linearly_interpolated_item(seqdict, key):
     '''
@@ -97,20 +106,18 @@ def get_linearly_interpolated_item(seqdict, key):
     and less than the next index. Return an interpolated value between the two
     indices.
     '''
-    it = iter(sorted(seqdict))
+    lekey = None
     try:
-	prv = it.next()
-    except StopIteration:
-	return None
-
-    while True:
-	try:
-	    nxt = it.next()
-	except StopIteration:
-	    return seqdict[prv]
-	if nxt <= key:
-	    prv = nxt
-	else:
-	    return cminterputils.linterp(\
-		    prv, seqdict[prv], nxt, seqdict[nxt], key)
+	lekey = cmbisect.find_le(seqdict.keys(), key)
+    except ValueError:
+	# Key is less than lowest key in list, return first item
+	return seqdict[iter(sorted(keys())).next()]
+    gtkey = None
+    try:
+	gtkey = cmbisect.find_gt(seqdict.keys(), key)
+    except:
+	# lekey is the last key
+	return seqdict[lekey]
+    return cminterputils.linterp(\
+	lekey, seqdict[lekey], gtkey, seqdict[gtkey], key)
     
