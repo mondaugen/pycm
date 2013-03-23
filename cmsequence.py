@@ -10,9 +10,9 @@ import cminterputils
 import cmquantize
 
 class IndexableSequence:
-    __metaclass__ = abc.ABCMeta
+#    __metaclass__ = abc.ABCMeta
 
-    @abc.abstractmethod
+    #@abc.abstractmethod
     def __len__(self):
 	'''
 	Length of the sequence. Often the sum of all the sublengths of each
@@ -20,7 +20,7 @@ class IndexableSequence:
 	'''
 	pass
 
-    @abc.abstractmethod
+    #@abc.abstractmethod
     def __getitem__(self, key):
 	'''
 	IndexableSequences may be sparse. How is a value retrieved from a sparse
@@ -29,14 +29,14 @@ class IndexableSequence:
 	'''
 	pass
 
-    @abc.abstractmethod
+    #@abc.abstractmethod
     def load_from_file(self, f):
 	'''
 	Load in sequence data from a file.
 	'''
 	pass
 
-    @abc.abstractmethod
+    #@abc.abstractmethod
     def adjust_indices(self, how):
 	'''
 	Adjust the indices. Often the data is stored in a reduced form but to
@@ -46,9 +46,9 @@ class IndexableSequence:
 	pass
 
 class CombiningSequence(IndexableSequence):
-    __metaclass__ = abc.ABCMeta
+#    __metaclass__ = abc.ABCMeta
 
-    @abc.abstractmethod
+    #@abc.abstractmethod
     def combine(self, args):
 	'''
 	If the sequence is made up of a few simultaneous sub-sequences, how are
@@ -181,12 +181,18 @@ class RhythmSequence(IndexableSequence):
 #		self.offset)
 	if key == None:
 	    return ('rest', 0)
-	tup = cmgetters.get_item_and_length_at_key(self.rhythm, key,\
+	tup = cmgetters.get_item_and_length_at_next_lowest_key(self.rhythm, key,\
 	    self.totallength)
 	if tup == None:
 	    return ('rest', 0)
 	status, length = tup
 	return (status, length)
+
+    def __iter__(self):
+	'''
+	Returns an iterator for iterating over stored rhythmic values.
+	'''
+	return iter(sorted(self.rhythm.keys()))
 
     def load_from_file(self, f):
 	self.rhythm = self.loading_function(f)
@@ -334,6 +340,23 @@ class ContourRhythmNoteCombSeq(CombiningSequence):
 	self.rangesequence.adjust_indices(i)
 	self.contoursequence.adjust_indices(i)
 
+class ContourRhythmNoteDynSeqIter:
+    '''
+    Iterator for ContourRhythmNoteDynSeq.
+    '''
+
+    def __init__(self,crnds):
+	'Create the iterator from a ContourRhythmNoteDynSeq object'
+	self.crnds = crnds
+	self.rhythmkeyiter = iter(self.crnds.rhythmsequence)
+
+    def __iter__(self):
+	return self.rhythmkeyiter
+
+    def next(self):
+	key = self.rhythmkeyiter.next()
+	return (key,) + self.crnds[key]
+
 class ContourRhythmNoteDynSeq(CombiningSequence):
     '''
     Holds a chord sequence, a range sequence, a contour sequence, a rhythm, a
@@ -349,6 +372,13 @@ class ContourRhythmNoteDynSeq(CombiningSequence):
 	self.contoursequence	= contoursequence
 	self.dynamicrangeseq	= dynamicrangeseq
 	self.dynamiccontourseq	= dynamiccontourseq
+
+    def __iter__(self):
+	'''
+	Return an iterator for iterating over the rhythm elements to give a
+	sequence.
+	'''
+	return ContourRhythmNoteDynSeqIter(self)
 
     def combine(self, args):
 	'''

@@ -56,7 +56,6 @@ def get_item_and_length_at_key(seqdict, key, totallength=1):
     distance between it and the totallength if it is the last item. Raises
     ValueError if the key is greater than totallength. Returns None if key not
     in seqdict.
-    THIS is faster, not tested
     '''
     if key > totallength:
 	raise ValueError
@@ -69,6 +68,22 @@ def get_item_and_length_at_key(seqdict, key, totallength=1):
     else:
 	secondkey = sortedkeys[secondindex]
     return (seqdict[key], secondkey - key)
+
+def get_item_and_length_at_next_lowest_key(seqdict, key, totallength=1):
+    '''
+    Return the item and the distance between it and the next item as a tuple, or the
+    distance between it and the totallength if it is the last item. Raises
+    ValueError if the key is greater than totallength. Returns None if key not
+    in seqdict.
+    Returns the actual next lowest key and item.
+    '''
+    sortedkeys = sorted(seqdict.keys())
+    lekey = None
+    try:
+	lekey = cmbisect.find_le(sortedkeys, key)
+    except ValueError:
+	return None
+    return get_item_and_length_at_key(seqdict, lekey, totallength)
 
 def get_next_lowest_item(seqdict, key):
     '''
