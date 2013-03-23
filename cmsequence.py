@@ -176,8 +176,9 @@ class RhythmSequence(IndexableSequence):
 	returns ('rest',0). Length is calculated by subtracting the next note
 	time from the current one (key)
 	'''
-	key = cmgetters.get_quantized_key(self.rhythm, key, self.divisor,\
-		self.offset)
+	#BUG this is not working with divisors other than 0
+#	key = cmgetters.get_quantized_key(self.rhythm, key, self.divisor,\
+#		self.offset)
 	if key == None:
 	    return ('rest', 0)
 	tup = cmgetters.get_item_and_length_at_key(self.rhythm, key,\
@@ -315,10 +316,10 @@ class ContourRhythmNoteCombSeq(CombiningSequence):
 	return self.combine(combdict)
 	'''
 	combdict = dict()
-	combdict['note']  = self.rhythmsequence[key]
-	combdict['chord'] = self.chordsequence[key]
+	combdict['note']    = self.rhythmsequence[key]
+	combdict['chord']   = self.chordsequence[key]
 	combdict['contour'] = self.contoursequence[key]
-	combdict['range'] = self.rangesequence[key]
+	combdict['range']   = self.rangesequence[key]
 	return self.combine(combdict)
 
     def load_from_file(self, f):
@@ -332,5 +333,93 @@ class ContourRhythmNoteCombSeq(CombiningSequence):
 	self.chordsequence.adjust_indices(i)
 	self.rangesequence.adjust_indices(i)
 	self.contoursequence.adjust_indices(i)
+
+class ContourRhythmNoteDynSeq(CombiningSequence):
+    '''
+    Holds a chord sequence, a range sequence, a contour sequence, a rhythm, a
+    dynamic range and a
+    dynamic contour and gives
+    notes by combining lookups from all six.
+    '''
+    def __init__(self, rhythmsequence, chordsequence, rangesequence,\
+	    contoursequence, dynamicrangeseq, dynamiccontourseq):
+	self.rhythmsequence	= rhythmsequence
+	self.chordsequence	= chordsequence
+	self.rangesequence	= rangesequence
+	self.contoursequence	= contoursequence
+	self.dynamicrangeseq	= dynamicrangeseq
+	self.dynamiccontourseq	= dynamiccontourseq
+
+    def combine(self, args):
+	'''
+	args is a dictionary of the pairs:
+	'note':string
+	'chord':<list>
+	'contour':<float>
+	'pitchrange':<list>
+	'dynamicrange':<list>
+	'dynamiccontour':<list>
+	and they are combined to give a midinote number (given that range is
+	describing midinotes) and a dynamic
+	'''
+	note, length = args['note']
+	if note == 'rest':
+	    return args['note']
+	chord		= args['chord']
+	pitchlowerbound	= args['pitchrange'][0]
+	pitchupperbound = args['pitchrange'][1]
+	dynlowerbound	= args['dynamicrange'][0]
+	dynupperbound	= args['dynamicrange'][1]
+	contour		= args['contour']
+	dyncontour	= args['dynamiccontour']
+	return (cmpitchtools.get_nearest_pitch(\
+		cmpitchtools.map_pcs_to_range(chord, pitchlowerbound, pitchupperbound),\
+		cminterputils.linterp_norm(\
+		    float(pitchlowerbound),float(pitchupperbound),contour)),\
+		cminterputils.linterp_norm(dynlowerbound, dynupperbound,
+		    dyncontour), length)
+
+    def __len__(self):
+	'''
+	Without loss of generality we should be able to return the length of any
+	sequence.
+	'''
+	return sum(self.chordsequence)
+
+    def __getitem__(self, key):
+	'''
+	Look up items in all the sub sequences and bring them together yeah.
+	TODO: A better way to do this might be to pass combdict to some method
+	in the IndexableSequences like:
+	combdict = self.somesequence.fill_dict_entry(combdict, key)
+	Then it's only upto combine to have to know what the keys are and how to
+	put them together. Further more, we can then have an arbitrary number of
+	sequences and it is only up to combine to know how to put them together:
+	for s in self.sequences:
+	    combdict = s.fill_dict_entry(combdict, key)
+	return self.combine(combdict)
+	'''
+	combdict = dict()
+	combdict['note']	    = self.rhythmsequence[key]
+	combdict['chord']	    = self.chordsequence[key]
+	combdict['contour']	    = self.contoursequence[key]
+	combdict['pitchrange']	    = self.rangesequence[key]
+	combdict['dynamicrange']    = self.dynamicrangeseq[key]
+	combdict['dynamiccontour']  = self.dynamiccontourseq[key]
+	return self.combine(combdict)
+
+    def load_from_file(self, f):
+	'''
+	I don't know how we're going to load the three from a single file yet.
+	'''
+	raise NotImplementedError
+
+    def adjust_indices(self, i):
+	self.rhythmsequence.adjust_indices(i)
+	self.chordsequence.adjust_indices(i)
+	self.rangesequence.adjust_indices(i)
+	self.contoursequence.adjust_indices(i)
+	self.dynamicrangeseq.adjust_indices(i)
+	self.dynamiccontourseq.adjust_indices(i)	
 
 

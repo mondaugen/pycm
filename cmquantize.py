@@ -1,6 +1,7 @@
 import cmmath
 from fractions import *
 
+
 class Quantizer:
     '''
     Intended for use as a Mix-In or superclass. Works by storing the original

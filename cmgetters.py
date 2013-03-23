@@ -54,25 +54,18 @@ def get_item_and_length_at_key(seqdict, key, totallength=1):
     distance between it and the totallength if it is the last item. Raises
     ValueError if the key is greater than totallength. Returns None if key not
     in seqdict.
+    THIS is faster, not tested
     '''
     if key > totallength:
 	raise ValueError
     if key not in seqdict:
 	return None
-    it = iter(sorted(seqdict.keys()))
-    firstkey = None
-    while True:
-	try:
-	    firstkey = it.next()
-	except StopIteration:
-	    return None # Key not found, shouldn't really happen
-	if firstkey == key:
-	    break
-    secondkey = None
-    try:
-	secondkey = it.next() # we want next key
-    except StopIteration:
-	secondkey = totallength # or totallength if this is the last key
+    sortedkeys = seqdict.keys()
+    secondindex = sortedkeys.index(key) + 1
+    if secondindex == len(sortedkeys)
+	secondkey = totallength
+    else
+	secondkey = sortedkeys[secondindex]
     return (seqdict[firstkey], secondkey - firstkey)
 
 def get_next_lowest_item(seqdict, key):
@@ -80,6 +73,7 @@ def get_next_lowest_item(seqdict, key):
     Sequence is a dictionary stored as {<time>:<value>,...} pairs.
     Go through the sequence and look for an item with key
     equal to or less than key. Return the item at key.
+    THIS IS REALLY SLOW
     '''
     it = iter(sorted(seqdict))
     try:
