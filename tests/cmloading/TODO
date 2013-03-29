@@ -1,0 +1,29 @@
+Questions:
+
+Should the forms of multiple parameters be coupled?
+
+Are there timing issues in SC?
+
+What other ways can pitches be chosen?
+
+How do you "fill-in" like in real music, like chords with arpeggios etc.?
+
+TODO:
+
+Implement polyphony and more instruments.
+
+The pitch selection of chords is not as good as before because it is not
+choosing successive subsets of pitches.
+
+Friday March 29th:
+
+Coupling means that they use the same form
+
+Try generating forms where all the parameters are totally coupled:
+    1 voice
+    ...
+    n voices
+
+Make a script where you can choose what parameters are coupled.
+
+Make a "timbremaker" that can vary the timbres of the voices.

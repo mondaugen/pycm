@@ -30,7 +30,7 @@ class SectionFiller:
 	    s.append((sublen, datum))
 	    totlen = totlen + sublen
 	if (totlen > self.length) & (len(s) > 0):
-	    sublen, datum = s[-1]
+	    sublen, datum = s.pop()
 	    sublen = sublen - (totlen - self.length)
 	    s.append((sublen, datum))
 	return s
