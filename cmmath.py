@@ -84,10 +84,10 @@ def find_nearest(ary, val):
     nearest = ary[0]
     smallestdistance = abs(ary[0]-val)
     for i in xrange(1, len(ary)):
-	distance = abs(ary[i]-val)
-	if distance < smallestdistance:
-	    smallestdistance = distance
-	    nearest = ary[i]
+	    distance = abs(ary[i]-val)
+	    if distance < smallestdistance:
+	      smallestdistance = distance
+	      nearest = ary[i]
     return nearest
 
 def cm_round(n, d, offset=0):
