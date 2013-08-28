@@ -1,4 +1,5 @@
 from cmpitchtools import get_nearest_pch
+from cmmusicobjects import Note
 
 def chord_arp(jumps, chord, start_pitch):
   norm_chord = [c % 12 for c in chord]
@@ -64,3 +65,37 @@ class Arp:
         n += 1
       return self.prev()
     return self.current()
+
+class PitchOrnamenter:
+  """
+  Ornaments a pitch according to a scale and an ornament vector e.g., given the
+  scale [0,2,3,4,5,7,9,11], the ornament [0,-2,1] and a note with length 4 and
+  pitch 62, returns (4,62)->(4,59)->(4,60)->None.
+  """
+  def __init__(self, scale, ornament_vector):
+    if len(scale) == 0:
+      self.scale = [0]
+    else:
+      self.scale = scale
+
+    if len(ornament_vector) == 0:
+      self.ornament_vector = [0]
+    else:
+      self.ornament_vector = ornament_vector
+
+  def ornament(self, note):
+    arp = Arp(self.scale, note.pitch)
+    tail = note.previous
+    after = note.after
+    note.detach()
+    newhead = Note(note.length, arp.advance_n(self.ornament_vector[0]))
+    if tail != None:
+      tail.append(newhead)
+    tail = newhead
+    for i in xrange(1,len(self.ornament_vector)):
+      pitch = arp.advance_n(self.ornament_vector[i])
+      tail.append(Note(note.length,pitch))
+      tail = tail.next()
+    tail.append(after)
+    return newhead
+
