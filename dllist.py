@@ -7,6 +7,13 @@ class DLList:
     self.before = before
     self.after = after
 
+  def __str__(self):
+    print "List:"
+    print "Before:"
+    print repr(self.before)
+    print "After:"
+    print repr(self.after)
+
   def detach_before(self):
     """
     Deletes connection between self and the element before it. If the element
@@ -63,17 +70,20 @@ class DLList:
     self is found and the first element of other is found and then these are
     joined.
     """
-    if self != None:
-      # this could be optimized with inline if (does it even matter?)
-      if other == None:
-        self.get_last().after = other
-      else
-        self.get_last().after = other.get_first()
-    if other != None:
-      if self == None:
-        other.get_first().before = self
-      else:
-        other.get_first().before = self.get_last()
+    self_first = self.get_first()
+    self_last = self.get_last()
+    if other == None:
+# self_last.after should already be None
+      return
+    other_first = other.get_first()
+    if (self_first
+        == other_first):
+#     This could be removed to make this more efficient and just warn people
+#     against doing it
+      raise ValueError("Can't join a list to itself, sorry (it sounds fun I"
+                          + " know).")
+    self_last.after = other_first
+    other_first.before = self_last
 
   def insert_after(self, other):
     """
@@ -81,11 +91,14 @@ class DLList:
     other with what originally came after self.
     """
     oldafter = self.after
-    self.after = None
+    self.detach_after()
     # if other is not the head of a list, it will get broken
     if other != None:
-      other.detach()
-    self.join(self, other)
+      other.detach_before()
+    else:
+      # Inserting None just breaks the list
+      return
+    self.join(other)
     other.join(oldafter)
 
   def insert_before(self, other):
@@ -93,11 +106,27 @@ class DLList:
     Inserts other before self in its entirety. What was originally before self
     is joined to the head of other.
     """
-    oldbefore = self.previous
-    self.previous = None
+    oldbefore = self.before
+    self.detach_before()
     # if other is not the head of a list, it will get broken
     if other != None:
-      other.detach()
-    other.join(self)
-    oldbefore.join(other)
+      other.detach_before()
+      other.join(self)
+    else:
+      # Inserting None just breaks the list
+      return
+    if oldbefore != None:
+      oldbefore.join(other)
+
+  def next(self,default=None):
+    if self.after == None:
+      if default != None:
+        return default
+      else:
+        raise StopIteration
+    else:
+      return self.after
+
+  def __iter__(self):
+    return self
 
