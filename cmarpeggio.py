@@ -69,8 +69,13 @@ class Arp:
 class PitchOrnamenter:
   """
   Ornaments a pitch according to a scale and an ornament vector e.g., given the
-  scale [0,2,3,4,5,7,9,11], the ornament [0,-2,1] and a note with length 4 and
+  scale [0,2,4,5,7,9,11], the ornament [0,-2,1] and a note with length 4 and
   pitch 62, returns (4,62)->(4,59)->(4,60)->None.
+
+  Warning: If you double pitch classes in the scale you will get strange
+  results. Consider this: [60,64,67,72], which has pitchclasses [0,4,7,0]. If you
+  arpeggiate 60 with the ornament [0,-2,1], you might get [60,55,60] even though
+  what you wanted (probably) was [60,52,55].
   """
   def __init__(self, scale, ornament_vector):
     if len(scale) == 0:
@@ -85,17 +90,9 @@ class PitchOrnamenter:
 
   def ornament(self, note):
     arp = Arp(self.scale, note.pitch)
-    tail = note.previous
-    after = note.after
-    note.detach()
     newhead = Note(note.length, arp.advance_n(self.ornament_vector[0]))
-    if tail != None:
-      tail.append(newhead)
-    tail = newhead
     for i in xrange(1,len(self.ornament_vector)):
       pitch = arp.advance_n(self.ornament_vector[i])
-      tail.append(Note(note.length,pitch))
-      tail = tail.next()
-    tail.append(after)
+      newhead.join(Note(note.length,pitch))
+    note.replace(newhead)
     return newhead
-

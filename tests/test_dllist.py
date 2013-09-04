@@ -166,5 +166,19 @@ class TestDLList(unittest.TestCase):
     self.assertEqual(make_list(oldbegin),[1])
     self.assertEqual(make_list(oldend.get_first()),[2,3])
 
+  def test_pop(self):
+    listelem = self.lista.after.pop()
+    self.assertEqual(make_list(self.lista),[1,3])
+    self.assertEqual(make_list(listelem),[2])
+
+  def test_replace(self):
+    self.lista.after.replace(self.listb)
+    self.assertEqual(make_list(self.lista),[1,4,5,6,3])
+
+  def test_to_list(self):
+    l = self.lista.to_list()
+    lvals = [el.value for el in l]
+    self.assertEqual(make_list(self.lista),[1,2,3])
+
 if __name__ == '__main__':
   unittest.main()

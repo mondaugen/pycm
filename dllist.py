@@ -32,6 +32,14 @@ class DLList:
       self.after.before = None
     self.after = None
 
+  def detach(self):
+    """
+    Detaches an element both before and after. This does not attach the
+    remaining dangling lists.
+    """
+    self.detach_before()
+    self.detach_after()
+
   def append(self, other):
     """
     Append other to self (put other directly after self).
@@ -85,6 +93,17 @@ class DLList:
     self_last.after = other_first
     other_first.before = self_last
 
+  def pop(self):
+    """
+    Detaches a list element and joins the dangling ends together.
+    """
+    oldbefore = self.before
+    oldafter = self.after
+    self.detach()
+    if oldbefore != None:
+      oldbefore.join(oldafter)
+    return self
+
   def insert_after(self, other):
     """
     Inserts other in its entirety directly after self and then joins the end of
@@ -118,6 +137,15 @@ class DLList:
     if oldbefore != None:
       oldbefore.join(other)
 
+  def replace(self,after):
+    """
+    Replaces self with the entirety of after (if after is not the head of a
+    list, the list will be cut). This is just inserting after after self and
+    then poping self.
+    """
+    self.insert_after(after)
+    self.pop()
+
   def next(self,default=None):
     if self.after == None:
       if default != None:
@@ -129,4 +157,17 @@ class DLList:
 
   def __iter__(self):
     return self
+
+  def to_list(self):
+    """
+    Returns a python list type representation of this list from here rightward.
+    """
+    result = []
+    item = self
+    while True:
+      result.append(item)
+      item = item.after
+      if item == None:
+        break
+    return result
 
