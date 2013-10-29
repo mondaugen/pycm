@@ -74,7 +74,7 @@ class PitchOrnamenter:
 
   Warning: If you double pitch classes in the scale you will get strange
   results. Consider this: [60,64,67,72], which has pitchclasses [0,4,7,0]. If you
-  arpeggiate 60 with the ornament [0,-2,1], you might get [60,55,60] even though
+  arpeggiate 60 with the ornament [0,-2,1], you will get [60,55,60] even though
   what you wanted (probably) was [60,52,55].
   """
   def __init__(self, scale, ornament_vector):
