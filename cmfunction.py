@@ -1,10 +1,22 @@
 from bisect import bisect_right, bisect_left
 
-def _find_le(a, x):
+def find_le(a, x):
   'Find rightmost value less than or equal to x'
   i = bisect_right(a, x)
   if i:
     return a[i-1]
+  raise ValueError
+
+def dict_find_le(a ,x):
+  'Convenient when a is a dictionary and you just compare keys.'
+  i = find_le(sorted(a.keys()), x)
+  return a[i]
+
+def index(a, x):
+  'Locate the leftmost value exactly equal to x'
+  i = bisect_left(a, x)
+  if i != len(a) and a[i] == x:
+      return i
   raise ValueError
 
 class LineSegment:
@@ -56,8 +68,7 @@ class PieceWiseFunction:
     return
 
   def __call__(self,x):
-    i = _find_le(sorted(self.functions.keys()), x)
-    return self.functions[i](x)
+    return dict_find_le(self.functions,x)(x)
 
 class FunctionIterator:
   """
