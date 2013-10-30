@@ -36,3 +36,32 @@ class Note(dllist.DLList):
       curt += n.length
     return notedict
 
+  def shallow_copy(self):
+    """
+    Returns a copy of this Note only, pointing to the exact same previous and
+    after notes (the same addresses) as the original. It does not touch the
+    previous and after notes, you get something like this:
+
+    n1->n2->n3->n4
+        \->n3cp-^
+
+    The copy just points to the old notes.
+    """
+    return Note(self.length, self.pitch, self.before, self.after)
+
+  def deep_copy(self):
+    """
+    Returns a copy of this Note and every note that comes after this note. The
+    beginning note's previous Note will become None.
+    """
+    newnotes = []
+    for n in self.to_list():
+      newnotes.append(n.shallow_copy())
+      newnotes[-1].before = None
+      newnotes[-1].after = None
+    newhead = newnotes[0]
+    for n in newnotes[1:]:
+      newhead.join(n)
+    return newhead
+
+
