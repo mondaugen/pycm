@@ -20,7 +20,15 @@ class TestCMMusicObjects(unittest.TestCase):
     self.assertEqual(n.after, self.note.after.after)
 
   def test_deep_copy_1(self):
-    n = 
+    n = self.note.deep_copy()
+    equal = True
+    equal &= (n == self.note)
+    equal &= (n.after == self.note.after)
+    equal &= (n.after.after == self.note.after.after)
+    self.assertFalse(equal)
+    self.assertEqual(n.get_first().pitch, 60)
+    m = self.note.after.deep_copy()
+    self.assertEqual(m.get_first().pitch, 69)
 
 if __name__ == '__main__':
   unittest.main()

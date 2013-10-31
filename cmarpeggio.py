@@ -23,9 +23,9 @@ class Arp:
   """
 
   def __init__(self, chord, start_pitch):
-    # Chord must be sorted
-    chord.sort()
     self.chord = [note % 12 for note in chord]
+    # Chord must be sorted
+    self.chord.sort()
     self.cur_pitch = get_nearest_pch(self.chord, start_pitch % 12)
     self.ival_vect = []
     for i in xrange(len(self.chord)):
