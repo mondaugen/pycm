@@ -1,6 +1,6 @@
 import unittest
 from cmmusicobjects import Note
-from cmarpeggio import PitchOrnamenter
+from cmarpeggio import PitchOrnamenter, PitchOrnamenterMulti
 from random import shuffle
 
 class TestDLList(unittest.TestCase):
@@ -46,6 +46,43 @@ class TestDLList(unittest.TestCase):
     notes = [n.pitch for n in newhead.to_list()]
     self.assertEqual(notes,[66,68,60,61,63,65])
 
+  def test_pitch_ornamenter_multi_1(self):
+    chords = [[2,4,10],[1,7,10],[2,7,11],[2,3,6]]
+    orn_vec = [[x] for x in [0,-2,1,0]]
+    snote = Note(1,69)
+    pom = PitchOrnamenterMulti(chords, orn_vec)
+    snote = pom.ornament(snote)
+    notes = [n.pitch for n in snote.get_first().to_list()]
+    self.assertEqual(notes,[70,61,67,66])
+
+  def test_pitch_ornamenter_multi_2(self):
+    chords = [[2,4,10],[1,7,10],[2,7,11],[2,3,6]]
+    orn_vec = [[0],[0,-2],[1],[0]]
+    snote = Note(1,69)
+    pom = PitchOrnamenterMulti(chords, orn_vec)
+    snote = pom.ornament(snote)
+    notes = [n.pitch for n in snote.get_first().to_list()]
+    self.assertEqual(notes,[70,70,61,67,66])
+
+  def test_pitch_ornamenter_multi_3(self):
+    chords = [[2,4,10],[1,7,10],[2,7,11],[2,3,6]]
+    orn_vec = [[0],[-1,-1],[1],[0]]
+    snote = Note(1,69)
+    pom = PitchOrnamenterMulti(chords, orn_vec)
+    snote = pom.ornament(snote)
+    notes = [n.pitch for n in snote.get_first().to_list()]
+    self.assertEqual(notes,[70,67,61,67,66])
+
+  def test_pitch_ornamenter_multi_4(self):
+    chords = [[2,4,10],[1,7,10],[2,7,11],[2,3,6]]
+    orn_vec = [[0],[-1,-1],[1],[0]]
+    snote = Note(1,56)
+    snote.join(Note(1,69))
+    snote.join(Note(1,79))
+    pom = PitchOrnamenterMulti(chords, orn_vec)
+    snote = pom.ornament(snote.after)
+    notes = [n.pitch for n in snote.get_first().to_list()]
+    self.assertEqual(notes,[56,70,67,61,67,66,79])
 
 if __name__ == '__main__':
   unittest.main()

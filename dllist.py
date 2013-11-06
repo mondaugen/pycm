@@ -171,3 +171,26 @@ class DLList:
         break
     return result
 
+  def sever(self):
+    """
+    Sets this elements before and after to None without affecting what they
+    point to. Useful after a shallow copy.
+    """
+    self.before = None
+    self.after = None
+
+  def __getitem__(self, key):
+    """
+    Allows calling list[n] to get a list element n items away. Works with
+    negative values of key too.
+    """
+    if key > 0:
+      if self.after == None:
+        raise IndexError
+      return self.after[key-1]
+    if key < 0:
+      if self.before == None:
+        raise IndexError
+      return self.before[key+1]
+    return self
+

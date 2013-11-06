@@ -96,3 +96,41 @@ class PitchOrnamenter:
       newhead.join(Note(note.length,pitch))
     note.replace(newhead)
     return newhead
+
+class PitchOrnamenterMulti:
+  """
+  Given a starting note, a vector (list) of chords, and a vector of intervals,
+  create a string of notes that arpeggiates over the chords.
+  """
+  def __init__(self, scales, ornament_vector):
+    if len(scales) == 0:
+      self.scales = [[0]]
+    if len(scales[0]) == 0:
+      self.scales = [[0]]
+    else:
+      self.scales = scales
+
+    if len(ornament_vector) == 0:
+      self.ornament_vector = [[0]]
+    else:
+      self.ornament_vector = ornament_vector
+
+    if len(self.scales) != len(self.ornament_vector):
+      raise Exception("Lengths of scales and ornament_vector must be equal.")
+
+  def ornament(self, note):
+    po = PitchOrnamenter(self.scales[0], self.ornament_vector[0])
+    head = po.ornament(note)
+    tail = head[len(self.ornament_vector[0]) - 1]
+    newtail = tail.shallow_copy()
+    newtail.sever()
+    tail.insert_after(newtail)
+    for c, o in zip(self.scales[1:], self.ornament_vector[1:]):
+      po = PitchOrnamenter(c,o)
+      newtail = po.ornament(newtail)
+      tail = newtail[len(o) - 1]
+      newtail = tail.shallow_copy()
+      newtail.sever()
+      tail.insert_after(newtail)
+    newtail.pop()
+    return head

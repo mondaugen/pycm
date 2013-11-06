@@ -180,5 +180,22 @@ class TestDLList(unittest.TestCase):
     lvals = [el.value for el in l]
     self.assertEqual(make_list(self.lista),[1,2,3])
 
+  def test_sever(self):
+    oldthird = self.lista.after.after
+    self.lista.after.sever()
+    self.assertNotEqual(self.lista.after, None)
+    self.assertNotEqual(oldthird.before, None)
+    self.assertEqual(self.lista.after.before, None)
+    self.assertEqual(self.lista.after.after, None)
+
+  def test_getitem(self):
+    with self.assertRaises(IndexError):
+      self.lista[-1]
+    with self.assertRaises(IndexError):
+      self.lista[3]
+    self.assertEqual(self.lista[1],self.lista.after)
+    self.assertEqual(self.lista[2],self.lista.after.after)
+    self.assertEqual(self.lista[2][-2],self.lista)
+
 if __name__ == '__main__':
   unittest.main()
