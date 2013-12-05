@@ -116,8 +116,9 @@ class PitchRhythmOrnamenter(PitchOrnamenter):
     else:
       self.rhythm_ornament_vector = rhythm_ornament_vector
 
-  def ornament(self, note):
-    newhead = super(PitchRhythmOrnamenter, self).ornament(note)
+  def ornament(self, note, keep_first_pitch=False):
+    newhead = super(PitchRhythmOrnamenter,
+        self).ornament(note,keep_first_pitch)
     for n, r in zip(newhead.to_list()[:len(self.rhythm_ornament_vector)],
         self.rhythm_ornament_vector):
       n.length *= r
