@@ -66,7 +66,7 @@ class Arp:
       return self.prev()
     return self.current()
 
-class PitchOrnamenter:
+class PitchOrnamenter(object):
   """
   Ornaments a pitch according to a scale and an ornament vector e.g., given the
   scale [0,2,4,5,7,9,11], the ornament [0,-2,1] and a note with length 4 and
@@ -88,13 +88,39 @@ class PitchOrnamenter:
     else:
       self.ornament_vector = ornament_vector
 
-  def ornament(self, note):
+  def ornament(self, note, keep_first_pitch=False):
     arp = Arp(self.scale, note.pitch)
+    firstpitch = note.pitch
     newhead = Note(note.length, arp.advance_n(self.ornament_vector[0]))
     for i in xrange(1,len(self.ornament_vector)):
       pitch = arp.advance_n(self.ornament_vector[i])
       newhead.join(Note(note.length,pitch))
     note.replace(newhead)
+    if keep_first_pitch:
+      newhead.pitch = firstpitch
+    return newhead
+
+class PitchRhythmOrnamenter(PitchOrnamenter):
+  """
+  Ornaments as PitchOrnamenter does, but also adds rhythmic ornamentation to the
+  new notes. The length of the rhythmic ornament must be the same as the length
+  of the pitch ornament.
+  """
+  def __init__(self, scale, pitch_ornament_vector, rhythm_ornament_vector):
+    if len(pitch_ornament_vector) != len(rhythm_ornament_vector):
+      raise ValueError("Length of pitch ornament vector and rhythm ornament \
+      vector must be equal")
+    PitchOrnamenter.__init__(self, scale, pitch_ornament_vector)
+    if len(rhythm_ornament_vector) == 0:
+      self.rhythm_ornament_vector = [1.0]
+    else:
+      self.rhythm_ornament_vector = rhythm_ornament_vector
+
+  def ornament(self, note):
+    newhead = super(PitchRhythmOrnamenter, self).ornament(note)
+    for n, r in zip(newhead.to_list()[:len(self.rhythm_ornament_vector)],
+        self.rhythm_ornament_vector):
+      n.length *= r
     return newhead
 
 class PitchOrnamenterMulti:
