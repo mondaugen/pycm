@@ -11,3 +11,15 @@ def abs_time_to_delta_time(seq):
     result.append((event[0] - lasttime, event[1:]))
     lasttime = event[0]
   return result
+
+# This is the same as abs_time_to_delta_time but the original abs time is still
+# in the final tuple
+def abs_time_to_delta_time_2(seq):
+  seq = sorted(seq,key=lambda x: x[0])
+  lasttime = 0
+  result = []
+  for event in seq:
+    result.append((event[0] - lasttime, event))
+    lasttime = event[0]
+  return result
+

@@ -36,6 +36,17 @@ class Note(dllist.DLList):
       curt += n.length
     return notedict
 
+  def to_tuple_list(self):
+    """
+    Returns a list of tuples of the form: (time, pitch, length). The result is
+    sorted by time.
+    """
+    d = self.to_dict()
+    result = []
+    for k in d:
+      result.append((k,d[k].pitch,d[k].length))
+    return list(sorted(result,key=lambda x: x[0]))
+
   def shallow_copy(self):
     """
     Returns a copy of this Note only, pointing to the exact same previous and
@@ -64,4 +75,15 @@ class Note(dllist.DLList):
       newhead.join(n)
     return newhead
 
-
+# UNTESTED, but works so far
+def suspend(n):
+  """
+  Suspend a note by tying it to the next one.
+  """
+  # Don't do it if this is the last note
+  if n.after == None:
+    return n
+  new_time = n.length + n.after.length
+  n.after.pop()
+  n.length = new_time
+  return n

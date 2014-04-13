@@ -10,6 +10,10 @@ def make_sequence_dict(formstringlist, sectionfiller):
     return seqdict
 
 def augment_form_dict(d, formstring, selection_func, generator_func=None):
+  """
+  selection_function accepts the set to select from and a parameter giving the
+  length of the current form string.
+  """
   to_do = []
   while formstring != "":
     if formstring in d:
@@ -25,6 +29,9 @@ def augment_form_dict(d, formstring, selection_func, generator_func=None):
       else:
         d[t] = generator_func()
         continue
-    d[t] = selection_func(s)
+    try:
+      d[t] = selection_func(s,len(t))
+    except TypeError:
+      d[t] = selection_func(s)
 
 

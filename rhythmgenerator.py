@@ -2,6 +2,20 @@ import random
 from formgenerator import *
 from finddotproducts import *
 
+def random_rational_sum(denom):
+  '''
+  Return some rational numbers that have denom as the common denominator and
+  that sum to 1.
+  '''
+  s = denom
+  result = []
+  while s > 0:
+    val = random.randint(1,s)
+    result.append(float(val) / float(denom))
+    s = s - val
+  random.shuffle(result)
+  return result
+
 def stretch_form_randomly(f,length):
   '''Given form f and a new length l, return a random dictionary of lengths so that
   when you look up each element of the form in the dictionary sequentially and

@@ -30,5 +30,9 @@ class TestCMMusicObjects(unittest.TestCase):
     m = self.note.after.deep_copy()
     self.assertEqual(m.get_first().pitch, 69)
 
+  def test_to_tuple_list_1(self):
+    tl = self.note.to_tuple_list()
+    self.assertEqual([(0,60,1),(1,69,0.5),(1.5,420,2.5)], tl)
+
 if __name__ == '__main__':
   unittest.main()

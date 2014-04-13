@@ -68,3 +68,18 @@ def make_chord_by_intervals_chrom(ivals, numchoice):
     if not valfound:
       return sorted(result)
   return sorted(result)
+
+class ChordBuilder(object):
+  """
+  Build chords by combining roots and signatures, i.e.:
+  root: 2 and signature: [0,3,7] (minor) gives: [2,5,9].
+  """
+  def __init__(self, roots, signatures):
+    self.roots = roots
+    self.signatures = signatures
+
+  def pick_chord(self):
+    someroot = random.choice(self.roots)
+    somesig  = random.choice(self.signatures)
+    result = [((someroot + p) % 12) for p in somesig]
+    return list(sorted(result))

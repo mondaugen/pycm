@@ -108,8 +108,9 @@ class PitchRhythmOrnamenter(PitchOrnamenter):
   """
   def __init__(self, scale, pitch_ornament_vector, rhythm_ornament_vector):
     if len(pitch_ornament_vector) != len(rhythm_ornament_vector):
-      raise ValueError("Length of pitch ornament vector and rhythm ornament \
-      vector must be equal")
+      raise ValueError("Length of pitch ornament vector (%d) and rhythm \
+          ornament vector (%d) must be equal" % (len(pitch_ornament_vector),
+            len(rhythm_ornament_vector)))
     PitchOrnamenter.__init__(self, scale, pitch_ornament_vector)
     if len(rhythm_ornament_vector) == 0:
       self.rhythm_ornament_vector = [1.0]
@@ -143,7 +144,8 @@ class PitchOrnamenterMulti:
       self.ornament_vector = ornament_vector
 
     if len(self.scales) != len(self.ornament_vector):
-      raise Exception("Lengths of scales and ornament_vector must be equal.")
+      raise Exception("Lengths of scales (%d) and ornament_vector (%d) must \
+          be equal." % (len(self.scales),leng(self.ornament_vector)))
 
   def ornament(self, note):
     po = PitchOrnamenter(self.scales[0], self.ornament_vector[0])
